@@ -23,8 +23,8 @@ app.loader
     const lefthand = new PIXI.Sprite(resources.lefthand.texture);
     const righthand = new PIXI.Sprite(resources.righthand.texture);
 
-    sewingMachine.scale.x = 0.7;
-    sewingMachine.scale.y = 0.7;
+    sewingMachine.scale.x = 0.6;
+    sewingMachine.scale.y = 0.6;
 
     lefthand.scale.x = 1.5;
     lefthand.scale.y = 1.5;
