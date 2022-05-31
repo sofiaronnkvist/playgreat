@@ -13,6 +13,7 @@
 
 //Alias for PIXI-functions
 let Container = PIXI.Container,
+
   application = PIXI.Application,
   autoDetectRenderer = PIXI.autoDetectRenderer,
   TextureCache = PIXI.utils.TextureCache,
@@ -40,6 +41,7 @@ let state = play;
 setup();
 
 function setup() {
+
   loader
     .add('sewingMachine', 'images/sewing-machine.png')
     .add('needle', 'images/needle.svg')
@@ -150,7 +152,10 @@ function play() {
 
   pins.forEach((el) => {
     el.y -= 8;
+
   });
+  }
+
 
   if (rectsIntersect(pin, needle)) {
     state = end();
