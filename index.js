@@ -13,19 +13,20 @@
 
 //Alias for PIXI-functions
 let Container = PIXI.Container,
-    application = PIXI.Application,
-    autoDetectRenderer = PIXI.autoDetectRenderer,
-    TextureCache = PIXI.utils.TextureCache,
-    Texture = PIXI.Texture,
-    Sprite = PIXI.Sprite,
-    Loader = PIXI.Loader.shared,
-    resources = PIXI.loader.resources;
+
+  application = PIXI.Application,
+  autoDetectRenderer = PIXI.autoDetectRenderer,
+  TextureCache = PIXI.utils.TextureCache,
+  Texture = PIXI.Texture,
+  Sprite = PIXI.Sprite,
+  Loader = PIXI.Loader.shared,
+  resources = PIXI.loader.resources;
 
 const app = new application({
-        backgroundColor: 0x2980b9,
-        width: window.innerWidth - 4,
-        height: window.innerHeight - 4,
-      });
+  backgroundColor: 0x2980b9,
+  width: window.innerWidth - 4,
+  height: window.innerHeight - 4,
+});
 
 document.body.appendChild(app.view);
 
@@ -42,73 +43,92 @@ setup();
 function setup() {
 
   loader
-  .add('sewingMachine', 'images/sewing-machine.png')
-  .add('lefthand', 'images/lefthand.svg')
-  .add('righthand', 'images/righthand.svg')
-  .add('pin', 'images/pins.png')
-  .load((loader, resources) => {
-    const sewingMachine = new Sprite(resources.sewingMachine.texture);
-    const lefthand = new Sprite(resources.lefthand.texture);
-    const righthand = new Sprite(resources.righthand.texture);
-    pin = new Sprite(resources.pin.texture);
+    .add('sewingMachine', 'images/sewing-machine.png')
+    .add('needle', 'images/needle.svg')
+    .add('lefthand', 'images/lefthand.svg')
+    .add('righthand', 'images/righthand.svg')
+    .add('pin', 'images/pins.png')
+    .load((loader, resources) => {
+      const sewingMachine = new Sprite(resources.sewingMachine.texture);
+      const needle = new Sprite(resources.needle.texture);
+      const lefthand = new Sprite(resources.lefthand.texture);
+      const righthand = new Sprite(resources.righthand.texture);
+      const pin = new Sprite(resources.pin.texture);
 
-    container = new Container();
-    let gameScene = new Container();
-    app.stage.addChild(gameScene);
-    let gameOverScene = new Container();
-    app.stage.addChild(gameOverScene);
+      container = new Container();
+      let gameScene = new Container();
+      app.stage.addChild(gameScene);
+      let gameOverScene = new Container();
+      app.stage.addChild(gameOverScene);
 
-    gameOverScene.visible = false;
+      gameOverScene.visible = false;
 
-    gameScene.addChild(sewingMachine);
-    gameScene.addChild(lefthand);
-    gameScene.addChild(righthand);
+      gameScene.addChild(sewingMachine);
+      gameScene.addChild(needle);
+      gameScene.addChild(lefthand);
+      gameScene.addChild(righthand);
 
-    container.addChild(pin);
-    gameScene.addChild(container);
+      //Hur ta bort den stora nålen!!
+      container.addChild(pin);
+      gameScene.addChild(container);
 
-    sewingMachine.scale.x = 0.7;
-    sewingMachine.scale.y = 0.7;
+      sewingMachine.scale.x = 0.7;
+      sewingMachine.scale.y = 0.7;
 
-    lefthand.scale.x = 1.5;
-    lefthand.scale.y = 1.5;
+      //animate the needle
+      needle.scale.x = 0.08;
+      needle.scale.y = 0.08;
+      app.ticker.add(animate);
+      let delta = 0;
 
-    righthand.scale.x = 1.5;
-    righthand.scale.y = 1.5;
+      function animate() {
+        delta += 0.8;
 
-    pin.scale.x = 0.07;
-    pin.scale.y = 0.07;
+        needle.y = 555 + Math.sin(delta) * 8;
+      }
 
-    container.width = 250;
-    container.height = 250;
+      lefthand.scale.x = 1.5;
+      lefthand.scale.y = 1.5;
 
-    sewingMachine.x = gameScene.width / 4;
-    sewingMachine.y = gameScene.height / 2;
+      righthand.scale.x = 1.5;
+      righthand.scale.y = 1.5;
 
-    lefthand.x = gameScene.width / 4;
-    lefthand.y = gameScene.height / 2.5;
+      pin.scale.x = 0.07;
+      pin.scale.y = 0.07;
 
-    righthand.x = gameScene.width / 1.7;
-    righthand.y = gameScene.height / 2.5;
+      container.width = 250;
+      container.height = 250;
 
-    container.x = gameScene.width / 3;
-    container.y = gameScene.width / 3;
+      sewingMachine.x = gameScene.width / 4;
+      sewingMachine.y = gameScene.height / 2;
 
-    state = play;
-    gameLoop();
-  });
-  }
+      needle.x = gameScene.width / 2.07;
+      needle.y = gameScene.height / 1.2;
 
-  const fps = 5;
+      lefthand.x = gameScene.width / 4;
+      lefthand.y = gameScene.height / 2.5;
 
-  function draw() {
-      setTimeout(function() {
-          requestAnimationFrame(gameLoop);
-      }, 4000 / fps);
-  }
+      righthand.x = gameScene.width / 1.7;
+      righthand.y = gameScene.height / 2.5;
 
-  function gameLoop() {
+      container.x = gameScene.width / 3;
+      container.y = gameScene.width / 3;
 
+      state = play;
+      gameLoop();
+    });
+}
+
+const fps = 12;
+
+//setinterval-finction här istället
+function draw() {
+  setTimeout(function () {
+    requestAnimationFrame(gameLoop);
+  }, 4000 / fps);
+}
+
+function gameLoop() {
   draw();
 
   // requestAnimationFrame(gameLoop);
@@ -118,14 +138,24 @@ let pins = [];
 
 function play() {
   //All the game logic goes here
+  /*   document.addEventListener('keypress', function (e) {
+
+  };
+
+
+} */
+
   // renderer.render(stage);
 
   const pin = createPin();
   pins.push(pin);
 
-  pins.forEach(el => {
-    el.y -= 2;
+  pins.forEach((el) => {
+    el.y -= 8;
+
   });
+  }
+
 
   if (rectsIntersect(pin, needle)) {
     state = end();
@@ -141,6 +171,26 @@ function end() {
   gameScene.visible = false;
   gameOverScene.visible = true;
 }
+/* app.stage.addChild(gameOverScene);
+
+const style = new PIXI.Text({
+  fontFamily: '',
+  fill: ['#'],
+  fontSize: ,
+});
+
+const text = 'Game over';
+const textStyle = new PIXI.Text(text, style);
+gameOverScene.addChild(textStyle);
+textStyle.x = 200;
+textStyle.y = 150;
+
+
+function onClick() {
+  gameOverScene.visible = false;
+  stage.visible = true;
+  
+} */
 
 // function rectsIntersect(a, b) {
 //   //A function that checks if sprites intersect
@@ -152,7 +202,6 @@ function end() {
 //   aBox.y + aBox.height > bBox.y &&
 //   aBox.y < bBox.y + bBox.height;
 // }
-
 
 function createPin() {
   let xNum = randomInt(50, 150);
@@ -172,8 +221,10 @@ function createPin() {
   container.addChild(pinImage);
 
   return pinImage;
-  }
+}
 
-  function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+//sprite1.mask = sprite2 overlapping pins över symaskin??
