@@ -7,8 +7,8 @@ const app = new PIXI.Application({
 
 document.body.appendChild(app.view);
 
-let sceneWidth = app.screen.width / 20;
-// let boxHeight = app.screen.height / 10;
+let sceneWidth = app.screen.width / 30;
+// let sceneHeight = app.screen.height / 10;
 
 //Start page
 const startPage = new PIXI.Container();
@@ -26,7 +26,7 @@ function startClick() {
 gameOverScreen.visible = false;
 startPage.visible = false;
 stage.visible = true;
-requestAnimationFrame(update);
+requestAnimationFrame(gameLoop);
 }
 
 //Game page
@@ -69,12 +69,6 @@ function animate() {
   needle.y = 380 + Math.sin(delta) * 8;
 }
 
-//The pin
-
-const pin = new PIXI.Sprite.from('/images/pins.png');
-pin.width = 50;
-pin.height = 50;
-
 //The fabric
 const fabric = new PIXI.Sprite.from('/images/textile.png');
 fabric.width = 520;
@@ -85,75 +79,77 @@ fabric.position.y = 420;
 stage.addChild(fabric);
 stage.addChild(lefthand);
 stage.addChild(righthand);
-stage.addChild(pin);
 stage.addChild(needle);
 
 righthand.position.x = stage.width /1.7;
 // right.position.y = stage.width /2;
 // lefthand.position.y = stage.width /2;
 
-// Function for pin speed
 
-function update() {
-pin.position.y -= 0.7;
-
-if (lefthand.score > 8) {
-  pin.position.y -= 6;
-} else if (lefthand.score > 25) {
-  pin.position.y -= 7;
-} else if (lefthand.score > 40) {
-  pin.position.y -= 8;
-}
-requestAnimationFrame(update);
-}
-
-//Function to add score functionality
-
-// let playerScore;
-
-// function score() {
-//   const style = new PIXI.TextStyle({
-//     fontFamily: 'Futura',
-//     fontSize: 60,
-//     fill: ['#05465A'],
-//   });
-
-//   lefthand.score = -1;
-
-//   playerScore = new PIXI.Text(lefthand.score, style);
-
-//   stage.addChild(playerScore);
-
-//   playerScore.y = 650;
-//   playerScore.x = 10;
-// }
-
-// score();
-
-// Function to gameLoop the game
+// GameLoop
+let pins = [];
 
 function gameLoop() {
   app.render(stage);
 
-  if (rectsIntersect(pin, needle) || rectsIntersect(lefthand, needle) || rectsIntersect(righthand, needle)) {
+  if (rectsIntersect(lefthand, needle) || rectsIntersect(righthand, needle)) {
       gameOverScreen.visible = true;
       stage.visible = false;
       startPage.visible = false;
     }
+    pins.forEach(element => {
+      if (rectsIntersect(element, needle)) {
+        gameOverScreen.visible = true;
+        stage.visible = false;
+        startPage.visible = false;
+      }
+    });
   requestAnimationFrame(gameLoop);
+};
+
+//Interval to create a new pin
+setInterval(() => {
+  const aNewPin = createPin();
+  pins.push(aNewPin);
+}, 2000);
+
+//Interval to remove a pin if it gets to the top
+setInterval(() => {
+  pins.forEach((el) => {
+    if (el.y < 420) {
+      const oldPin = pins.shift();
+      stage.removeChild(oldPin);
+    }
+    el.y -= 12;
+  });
+}, 400);
+
+//Function to create a new pin
+let pinImage;
+
+function createPin() {
+  let xNum = randomInt(200, 500);
+
+  let y = 660;
+
+  pinImage = new PIXI.Sprite.from('/images/pins.png');
+  pinImage.anchor.x = 0.5;
+  pinImage.anchor.y = 0.5;
+  pinImage.width = 50;
+  pinImage.height = 50;
+
+  pinImage.position.x = xNum;
+  pinImage.position.y = y;
+
+  stage.addChild(pinImage);
+
+  return pinImage;
 }
 
-gameLoop();
-
-//Function to randomize a new pin on the y-axis
-
-function newPins() {
-  let randomX = Math.floor(Math.random() * 10 + 0);
-
-  pin.position.y = 660;
-  pin.position.x = sceneWidth * randomX;
+//Function to create a random number
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-newPins();
 
 // Game over screen
 const gameOverScreen = new PIXI.Container();
@@ -181,8 +177,7 @@ gameover.on('click', startClick);
 // //   newPins();
 // }
 
-//Function to check if the needle and pins collide
-
+//Function to check if the needle and pins or hands collide
 function rectsIntersect(a, b) {
 let aBox = a.getBounds();
 let bBox = b.getBounds();
@@ -195,30 +190,28 @@ aBox.y < bBox.y + bBox.height;
 
 //Function to move the lefthand up and down
 // 37 is left, 39 is right
-
 document.addEventListener('keydown', keystroke);
 lefthand.position.y = 400;
 righthand.position.y = 400;
 function keystroke(key) {
-
-if (key.keyCode === 37) {
-  if (lefthand.position.x != 0) {
-    lefthand.position.x -= sceneWidth;
-    righthand.position.x -= sceneWidth;
-    pin.position.x -= sceneWidth;
-    fabric.position.x -= sceneWidth;
+  if (key.keyCode === 37) {
+    if (lefthand.position.x != 0) {
+      lefthand.position.x -= sceneWidth;
+      righthand.position.x -= sceneWidth;
+      fabric.position.x -= sceneWidth;
+      pins.forEach(el => {
+        el.position.x -= sceneWidth;
+      });
+    }
+  }
+  if (key.keyCode === 39) {
+    if (lefthand.position.x != app.screen.Width - sceneWidth) {
+      lefthand.position.x += sceneWidth;
+      righthand.position.x += sceneWidth;
+      fabric.position.x += sceneWidth;
+      pins.forEach(el => {
+        el.position.x += sceneWidth;
+      });
+    }
   }
 }
-
-if (key.keyCode === 39) {
-  if (lefthand.position.x != app.screen.Width - sceneWidth) {
-    lefthand.position.x += sceneWidth;
-    righthand.position.x += sceneWidth;
-    pin.position.x += sceneWidth;
-    fabric.position.x += sceneWidth;
-  }
-}
-}
-
-// bubble.zIndex = background.location.z;
-// background.mask = bubble;
