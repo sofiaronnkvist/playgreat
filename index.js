@@ -22,11 +22,11 @@ introscene.interactive = true;
 introscene.on('click', startClick);
 
 function startClick() {
-gameOverScreen.visible = false;
-startPage.visible = false;
-stage.visible = true;
-gameLoop();
-startPins();
+  gameOverScreen.visible = false;
+  startPage.visible = false;
+  stage.visible = true;
+  gameLoop();
+  startPins();
 }
 
 //Game page
@@ -34,14 +34,14 @@ const stage = new PIXI.Container();
 stage.visible = false;
 app.stage.addChild(stage);
 
-const sewingMachineBackground = new PIXI.Sprite.from('/images/sewing-machine.png');
+const sewingMachineBackground = new PIXI.Sprite.from(
+  '/images/sewing-machine.png'
+);
 sewingMachineBackground.width = app.screen.width;
 sewingMachineBackground.height = 510;
 sewingMachineBackground.width = 670;
 sewingMachineBackground.position.x = 113;
 stage.addChild(sewingMachineBackground);
-
-
 
 //The left hand
 const lefthand = new PIXI.Sprite.from('/images/lefthand.svg');
@@ -52,7 +52,7 @@ lefthand.scale.y = 1.5;
 const righthand = new PIXI.Sprite.from('/images/righthand.svg');
 righthand.scale.x = 1.5;
 righthand.scale.y = 1.5;
-righthand.position.x = stage.width /1.45;
+righthand.position.x = stage.width / 1.45;
 
 //The needle
 const needle = new PIXI.Sprite.from('/images/needle.svg');
@@ -89,17 +89,17 @@ function gameLoop() {
   app.render(stage);
 
   if (rectsIntersect(lefthand, needle) || rectsIntersect(righthand, needle)) {
+    gameOverScreen.visible = true;
+    stage.visible = false;
+    startPage.visible = false;
+  }
+  pins.forEach((element) => {
+    if (rectsIntersect(element, needle)) {
       gameOverScreen.visible = true;
       stage.visible = false;
       startPage.visible = false;
     }
-    pins.forEach(element => {
-      if (rectsIntersect(element, needle)) {
-        gameOverScreen.visible = true;
-        stage.visible = false;
-        startPage.visible = false;
-      }
-    });
+  });
   requestAnimationFrame(gameLoop);
   timePlayed();
 }
@@ -168,7 +168,7 @@ function timePlayed() {
     gameOverScreen.visible = false;
     stage.visible = false;
     startPage.visible = false;
-  }, 2000);
+  }, 60000);
 }
 
 // Game over screen
@@ -190,13 +190,15 @@ function onClick() {
 
 //Function to check if the needle and pins or hands collide
 function rectsIntersect(a, b) {
-let aBox = a.getBounds();
-let bBox = b.getBounds();
+  let aBox = a.getBounds();
+  let bBox = b.getBounds();
 
-return aBox.x + aBox.width > bBox.x &&
-aBox.x < bBox.x + bBox.width &&
-aBox.y + aBox.height > bBox.y &&
-aBox.y < bBox.y + bBox.height;
+  return (
+    aBox.x + aBox.width > bBox.x &&
+    aBox.x < bBox.x + bBox.width &&
+    aBox.y + aBox.height > bBox.y &&
+    aBox.y < bBox.y + bBox.height
+  );
 }
 
 //Function to move the hands, fabric and pins
@@ -210,7 +212,7 @@ function keystroke(key) {
       lefthand.position.x -= sceneWidth;
       righthand.position.x -= sceneWidth;
       fabric.position.x -= sceneWidth;
-      pins.forEach(el => {
+      pins.forEach((el) => {
         el.position.x -= sceneWidth;
       });
     }
@@ -220,7 +222,7 @@ function keystroke(key) {
       lefthand.position.x += sceneWidth;
       righthand.position.x += sceneWidth;
       fabric.position.x += sceneWidth;
-      pins.forEach(el => {
+      pins.forEach((el) => {
         el.position.x += sceneWidth;
       });
     }
